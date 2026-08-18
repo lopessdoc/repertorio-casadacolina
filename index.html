@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casa da Colina — Repertório</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              800: '#1e293b',
+              900: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col pb-20">
+
+  <!-- Header Institucional -->
+  <header class="bg-black text-white border-b border-gray-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <!-- Logo Vetorial Casa da Colina -->
+        <div class="w-12 h-12 bg-black rounded border border-gray-800 p-1 flex items-center justify-center shrink-0">
+          <svg viewBox="0 0 100 100" class="w-full h-full" fill="none" stroke="white" stroke-width="6" stroke-linecap="square" stroke-linejoin="miter">
+            <path d="M 24 38 L 24 20 L 44 20" />
+            <path d="M 56 20 L 76 20 L 76 50" />
+            <path d="M 76 60 L 76 78 L 52 78" />
+            <path d="M 40 78 L 24 78 L 24 50" />
+            <polyline points="30,70 48,46 58,60 64,52 70,60" fill="none" stroke-width="6" stroke-linejoin="round" />
+            <polygon points="30,70 48,46 48,70" fill="white" stroke="none" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold tracking-wider uppercase text-white leading-tight">Casa da Colina</h1>
+          <p class="text-xs text-gray-400 font-medium tracking-wide">Repertório</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2 sm:space-x-3">
+        <span id="adminBadge" class="hidden text-xs bg-amber-500/20 text-amber-300 font-semibold px-2.5 py-1 rounded-full border border-amber-500/30">
+          <i class="fa-solid fa-lock-open mr-1"></i> Modo Administrador
+        </span>
+        <button id="authBtn" onclick="toggleAuth()" class="text-xs sm:text-sm px-3 py-1.5 rounded-lg border border-gray-700 bg-gray-900 text-gray-200 font-medium hover:bg-gray-800 transition">
+          <i class="fa-solid fa-user-shield mr-1.5"></i> <span id="authBtnText">Acesso Administrador</span>
+        </button>
+        <button id="newSongBtn" onclick="openSongModal()" class="hidden text-xs sm:text-sm bg-white hover:bg-gray-200 text-black px-3.5 py-1.5 rounded-lg font-bold shadow-sm transition">
+          <i class="fa-solid fa-plus mr-1"></i> Nova Música
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegação por Abas -->
+  <div class="bg-white border-b border-gray-200 sticky top-[61px] z-20 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 flex gap-2 sm:gap-6 overflow-x-auto">
+      <button id="tabSongsBtn" onclick="switchTab('songs')" class="py-3 text-xs sm:text-sm font-semibold border-b-2 border-black text-black flex items-center gap-1.5 whitespace-nowrap">
+        <i class="fa-solid fa-music"></i> Lista de Músicas
+      </button>
+      <button id="tabHistoryDateBtn" onclick="switchTab('historyDate')" class="py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 flex items-center gap-1.5 whitespace-nowrap">
+        <i class="fa-solid fa-calendar-days"></i> Por Data
+      </button>
+      <button id="tabHistoryVocalBtn" onclick="switchTab('historyVocal')" class="py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 flex items-center gap-1.5 whitespace-nowrap">
+        <i class="fa-solid fa-microphone"></i> Por Ministro
+      </button>
+      <button id="tabHistoryStyleBtn" onclick="switchTab('historyStyle')" class="py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 flex items-center gap-1.5 whitespace-nowrap">
+        <i class="fa-solid fa-layer-group"></i> Por Estilo
+      </button>
+      <button id="tabHistoryKeyBtn" onclick="switchTab('historyKey')" class="py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 flex items-center gap-1.5 whitespace-nowrap">
+        <i class="fa-solid fa-sliders"></i> Por Tom
+      </button>
+    </div>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full">
+    
+    <!-- ABA 1: Lista de Músicas -->
+    <section id="songsSection">
+      <!-- Barra de Filtros Combinados -->
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-4 space-y-3">
+        <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+          <div class="relative w-full md:w-80">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+            <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Buscar por título ou artista..." 
+                   class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black">
+          </div>
+
+          <div class="flex items-center justify-between w-full md:w-auto gap-3">
+            <div class="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200">
+              <button id="viewGridBtn" onclick="setViewMode('grid')" title="Visualização em Grade" class="px-2.5 py-1 text-xs rounded-md bg-white text-black shadow-xs font-semibold">
+                <i class="fa-solid fa-grip"></i>
+              </button>
+              <button id="viewListBtn" onclick="setViewMode('list')" title="Visualização em Lista" class="px-2.5 py-1 text-xs rounded-md text-gray-500 hover:text-black">
+                <i class="fa-solid fa-list"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-1.5 text-xs text-gray-600">
+              <span>Exibir:</span>
+              <select id="pageSizeSelect" onchange="changePageSize()" class="border border-gray-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-black">
+                <option value="9">9</option>
+                <option value="18">18</option>
+                <option value="36">36</option>
+                <option value="all">Todas</option>
+              </select>
+            </div>
+
+            <button onclick="resetFilters()" class="text-xs text-gray-500 hover:text-black underline font-medium">Limpar</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-gray-100">
+          <select id="styleFilter" onchange="applyFilters()" class="text-xs sm:text-sm border border-gray-300 rounded-lg px-2.5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="">Todos os Estilos</option>
+            <option value="Adoração / Exaltação">Adoração / Exaltação</option>
+            <option value="Celebração / Júbilo">Celebração / Júbilo</option>
+            <option value="Rendição / Devoção">Rendição / Devoção</option>
+          </select>
+
+          <select id="keyFilter" onchange="applyFilters()" class="text-xs sm:text-sm border border-gray-300 rounded-lg px-2.5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="">Todos os Tons</option>
+            <optgroup label="Tons Maiores">
+              <option value="C">C</option><option value="C# / Db">C# / Db</option><option value="D">D</option><option value="D# / Eb">D# / Eb</option>
+              <option value="E">E</option><option value="F">F</option><option value="F# / Gb">F# / Gb</option><option value="G">G</option>
+              <option value="G# / Ab">G# / Ab</option><option value="A">A</option><option value="A# / Bb">A# / Bb</option><option value="B">B</option>
+            </optgroup>
+            <optgroup label="Tons Menores">
+              <option value="Cm">Cm</option><option value="C#m / Dbm">C#m / Dbm</option><option value="Dm">Dm</option><option value="D#m / Ebm">D#m / Ebm</option>
+              <option value="Em">Em</option><option value="Fm">Fm</option><option value="F#m / Gbm">F#m / Gbm</option><option value="Gm">Gm</option>
+              <option value="G#m / Abm">G#m / Abm</option><option value="Am">Am</option><option value="A#m / Bbm">A#m / Bbm</option><option value="Bm">Bm</option>
+            </optgroup>
+          </select>
+
+          <select id="vocalFilter" onchange="applyFilters()" class="text-xs sm:text-sm border border-gray-300 rounded-lg px-2.5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="">Todos os Ministros</option>
+            <option value="Juliana">Juliana</option>
+            <option value="Paola">Paola</option>
+            <option value="Miriã">Miriã</option>
+            <option value="Haniele">Haniele</option>
+            <option value="Filipe">Filipe</option>
+          </select>
+
+          <select id="sortFilter" onchange="applyFilters()" class="text-xs sm:text-sm border border-gray-300 rounded-lg px-2.5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="playsDesc">Mais Tocadas</option>
+            <option value="alpha">Ordem Alfabética</option>
+            <option value="bpm">BPM (Crescente)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Barra de Controle de Seleção em Massa (Administrador) -->
+      <div id="bulkSelectHeader" class="hidden flex items-center justify-between px-2 py-1.5 mb-2 bg-gray-100 rounded-lg text-xs text-gray-700">
+        <label class="flex items-center gap-2 cursor-pointer font-medium">
+          <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)" class="w-4 h-4 rounded text-black focus:ring-0">
+          <span>Selecionar Todas as Músicas da Página</span>
+        </label>
+        <span id="selectedCountBadge" class="font-semibold text-gray-900">0 selecionadas</span>
+      </div>
+
+      <!-- Container de Exibição: Grade ou Lista -->
+      <div id="songsContainer"></div>
+
+      <!-- Paginação -->
+      <div id="paginationBar" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600 border-t border-gray-200 pt-4">
+        <div id="paginationInfo">Mostrando 0 de 0 músicas</div>
+        <div id="paginationButtons" class="flex items-center gap-1"></div>
+      </div>
+    </section>
+
+    <!-- ABA 2: Histórico por Data -->
+    <section id="historyDateSection" class="hidden">
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mb-6 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-gray-900">Histórico Cronológico</h2>
+          <p class="text-xs text-gray-500">Músicas agrupadas por culto</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="month" id="dateFilterMonth" onchange="renderHistoryDate()" class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-black">
+          <button onclick="document.getElementById('dateFilterMonth').value=''; renderHistoryDate();" class="text-xs text-gray-500 hover:text-black underline">Limpar</button>
+        </div>
+      </div>
+      <div id="historyDateTimeline" class="space-y-4"></div>
+    </section>
+
+    <!-- ABA 3: Histórico por Ministro -->
+    <section id="historyVocalSection" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <h2 class="text-base font-bold text-gray-900">Músicas por Ministro</h2>
+        <p class="text-xs text-gray-500">Músicas e tons mais utilizados por cada vocalista</p>
+      </div>
+      <div id="historyVocalGrid" class="space-y-4"></div>
+    </section>
+
+    <!-- ABA 4: Histórico por Estilo de Música -->
+    <section id="historyStyleSection" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <h2 class="text-base font-bold text-gray-900">Repertório por Estilo Musical</h2>
+        <p class="text-xs text-gray-500">Distribuição entre Adoração, Celebração e Rendição</p>
+      </div>
+      <div id="historyStyleGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- ABA 5: Histórico por Tom -->
+    <section id="historyKeySection" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <h2 class="text-base font-bold text-gray-900">Músicas por Tom Cantado</h2>
+        <p class="text-xs text-gray-500">Agrupamento pelo tom executado nos cultos</p>
+      </div>
+      <div id="historyKeyGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+    </section>
+
+  </main>
+
+  <!-- BARRA FLUTUANTE DE AÇÕES EM MASSA (Administrador) -->
+  <div id="bulkActionsToolbar" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-gray-700 flex items-center gap-3 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
+    <div class="text-xs font-semibold pr-2 border-r border-gray-700">
+      <span id="bulkSelectedText">0</span> selecionadas
+    </div>
+    <button onclick="openBulkEditModal()" class="bg-white hover:bg-gray-200 text-black text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+      <i class="fa-solid fa-pen-to-square"></i> Alterar em Massa
+    </button>
+    <button onclick="deleteSelectedSongs()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+      <i class="fa-solid fa-trash"></i> Excluir
+    </button>
+    <button onclick="clearSelection()" class="text-gray-400 hover:text-white text-xs ml-1" title="Cancelar Seleção">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <!-- MODAL: Alterações em Massa -->
+  <div id="bulkEditModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-3 pb-2 border-b">
+        <h3 class="text-base font-bold text-gray-900">Editar Músicas em Massa</h3>
+        <button onclick="closeModal('bulkEditModal')" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <p id="bulkEditSub" class="text-xs text-gray-500 mb-4"></p>
+
+      <form id="bulkEditForm" onsubmit="applyBulkEdit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Novo Estilo Musical (Opcional)</label>
+          <select id="bulkSongStyle" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="">-- Manter estilo atual --</option>
+            <option value="Adoração / Exaltação">Adoração / Exaltação</option>
+            <option value="Celebração / Júbilo">Celebração / Júbilo</option>
+            <option value="Rendição / Devoção">Rendição / Devoção</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Novo Tom Original (Opcional)</label>
+          <select id="bulkSongKey" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="">-- Manter tom atual --</option>
+            <optgroup label="Tons Maiores (12)">
+              <option value="C">C</option><option value="C# / Db">C# / Db</option><option value="D">D</option><option value="D# / Eb">D# / Eb</option>
+              <option value="E">E</option><option value="F">F</option><option value="F# / Gb">F# / Gb</option><option value="G">G</option>
+              <option value="G# / Ab">G# / Ab</option><option value="A">A</option><option value="A# / Bb">A# / Bb</option><option value="B">B</option>
+            </optgroup>
+            <optgroup label="Tons Menores (12)">
+              <option value="Cm">Cm</option><option value="C#m / Dbm">C#m / Dbm</option><option value="Dm">Dm</option><option value="D#m / Ebm">D#m / Ebm</option>
+              <option value="Em">Em</option><option value="Fm">Fm</option><option value="F#m / Gbm">F#m / Gbm</option><option value="Gm">Gm</option>
+              <option value="G#m / Abm">G#m / Abm</option><option value="Am">Am</option><option value="A#m / Bbm">A#m / Bbm</option><option value="Bm">Bm</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="pt-3 border-t flex justify-end gap-2">
+          <button type="button" onclick="closeModal('bulkEditModal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-sm bg-black hover:bg-gray-800 text-white rounded-lg font-medium">Aplicar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Cadastro / Edição Individual de Música -->
+  <div id="songModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b">
+        <h3 id="songModalTitle" class="text-lg font-bold text-gray-900">Cadastrar Nova Música</h3>
+        <button onclick="closeModal('songModal')" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="songForm" onsubmit="saveSong(event)" class="space-y-4">
+        <input type="hidden" id="songId">
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Link do YouTube</label>
+          <div class="flex gap-2">
+            <input type="url" id="ytUrl" oninput="updateModalThumbPreview(this.value)" placeholder="https://www.youtube.com/watch?v=..." 
+                   class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+            <button type="button" onclick="fetchYouTubeData()" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-2 rounded-lg text-xs font-semibold text-gray-700 transition">
+              <i class="fa-solid fa-wand-magic-sparkles mr-1 text-brand-800"></i> Puxar
+            </button>
+          </div>
+          <p id="ytHelper" class="text-[11px] text-gray-500 mt-1">Cole a URL e clique em "Puxar" para autocompletar.</p>
+        </div>
+
+        <!-- Pré-visualização da Miniatura no Modal -->
+        <div id="modalThumbContainer" class="hidden rounded-lg overflow-hidden border border-gray-200 relative bg-black aspect-video max-h-40 flex items-center justify-center">
+          <img id="modalThumbImg" src="" alt="Miniatura YouTube" class="w-full h-full object-cover">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Título da Música</label>
+          <input type="text" id="songTitle" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Artista / Compositor</label>
+            <input type="text" id="songArtist" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Estilo da Música</label>
+            <select id="songStyle" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+              <option value="">Selecione...</option>
+              <option value="Adoração / Exaltação">Adoração / Exaltação</option>
+              <option value="Celebração / Júbilo">Celebração / Júbilo</option>
+              <option value="Rendição / Devoção">Rendição / Devoção</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 items-end">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Ano</label>
+            <input type="number" id="songYear" placeholder="Ex: 2022" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Tom Original</label>
+            <select id="songKey" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+              <option value="">Selecione...</option>
+              <optgroup label="Tons Maiores (12)">
+                <option value="C">C</option><option value="C# / Db">C# / Db</option><option value="D">D</option><option value="D# / Eb">D# / Eb</option>
+                <option value="E">E</option><option value="F">F</option><option value="F# / Gb">F# / Gb</option><option value="G">G</option>
+                <option value="G# / Ab">G# / Ab</option><option value="A">A</option><option value="A# / Bb">A# / Bb</option><option value="B">B</option>
+              </optgroup>
+              <optgroup label="Tons Menores (12)">
+                <option value="Cm">Cm</option><option value="C#m / Dbm">C#m / Dbm</option><option value="Dm">Dm</option><option value="D#m / Ebm">D#m / Ebm</option>
+                <option value="Em">Em</option><option value="Fm">Fm</option><option value="F#m / Gbm">F#m / Gbm</option><option value="Gm">Gm</option>
+                <option value="G#m / Abm">G#m / Abm</option><option value="Am">Am</option><option value="A#m / Bbm">A#m / Bbm</option><option value="Bm">Bm</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-semibold text-gray-700 uppercase">BPM</label>
+              <button type="button" onclick="tapTempo()" class="text-[10px] text-gray-600 hover:text-black font-bold">
+                <i class="fa-solid fa-stopwatch"></i> Tap
+              </button>
+            </div>
+            <input type="number" id="songBpm" placeholder="Ex: 72" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black">
+          </div>
+        </div>
+
+        <div class="pt-4 border-t flex justify-end gap-2">
+          <button type="button" onclick="closeModal('songModal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-sm bg-black hover:bg-gray-800 text-white rounded-lg font-medium">Salvar Música</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Registro de Execução em Culto -->
+  <div id="playModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-3 pb-2 border-b">
+        <div>
+          <h3 class="text-base font-bold text-gray-900">Registrar no Culto</h3>
+          <p id="playSongTitle" class="text-xs text-gray-500 font-medium"></p>
+        </div>
+        <button onclick="closeModal('playModal')" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="playForm" onsubmit="savePlay(event)" class="space-y-3">
+        <input type="hidden" id="playSongId">
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Data do Culto</label>
+          <input type="date" id="playDate" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Ministro / Vocal</label>
+            <input type="text" id="playVocal" placeholder="Ex: Juliana, Paola" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Tom Cantado</label>
+            <select id="playKey" class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black" required>
+              <optgroup label="Tons Maiores (12)">
+                <option value="C">C</option><option value="C# / Db">C# / Db</option><option value="D">D</option><option value="D# / Eb">D# / Eb</option>
+                <option value="E">E</option><option value="F">F</option><option value="F# / Gb">F# / Gb</option><option value="G">G</option>
+                <option value="G# / Ab">G# / Ab</option><option value="A">A</option><option value="A# / Bb">A# / Bb</option><option value="B">B</option>
+              </optgroup>
+              <optgroup label="Tons Menores (12)">
+                <option value="Cm">Cm</option><option value="C#m / Dbm">C#m / Dbm</option><option value="Dm">Dm</option><option value="D#m / Ebm">D#m / Ebm</option>
+                <option value="Em">Em</option><option value="Fm">Fm</option><option value="F#m / Gbm">F#m / Gbm</option><option value="Gm">Gm</option>
+                <option value="G#m / Abm">G#m / Abm</option><option value="Am">Am</option><option value="A#m / Bbm">A#m / Bbm</option><option value="Bm">Bm</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">Alterações na Estrutura / Medley</label>
+          <textarea id="playNotes" rows="2" placeholder="Ex: Baixou 1 tom; Medley com a canção X; Sem ponte" 
+                    class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+        </div>
+
+        <div class="pt-3 border-t flex justify-end gap-2">
+          <button type="button" onclick="closeModal('playModal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg font-medium">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-sm bg-black hover:bg-gray-800 text-white rounded-lg font-medium">Confirmar Registro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Histórico Individual da Canção -->
+  <div id="historyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b">
+        <div>
+          <h3 id="historyTitle" class="text-base font-bold text-gray-900">Histórico de Cultos</h3>
+          <p id="historySubtitle" class="text-xs text-gray-500"></p>
+        </div>
+        <button onclick="closeModal('historyModal')" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="overflow-y-auto flex-1 my-3">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b bg-gray-50 text-gray-500 uppercase font-semibold">
+              <th class="py-2.5 px-3">Data</th>
+              <th class="py-2.5 px-3">Ministro</th>
+              <th class="py-2.5 px-3">Tom Cantado</th>
+              <th class="py-2.5 px-3">Arranjo / Notas</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+
+      <div class="pt-2 border-t flex justify-end">
+        <button onclick="closeModal('historyModal')" class="px-4 py-1.5 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Lógica de Aplicação -->
+  <script>
+    let isAdmin = false;
+    let currentTab = 'songs';
+    let viewMode = 'grid';
+    let currentPage = 1;
+    let pageSize = 9;
+    let selectedSongIds = new Set();
+    let filteredSongsCache = [];
+
+    // Helper: Extração de Miniatura do YouTube
+    function getYouTubeThumbnail(url) {
+      if (!url) return '';
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11)
+        ? `https://img.youtube.com/vi/${match[2]}/hqdefault.jpg`
+        : '';
+    }
+
+    function updateModalThumbPreview(url) {
+      const container = document.getElementById('modalThumbContainer');
+      const img = document.getElementById('modalThumbImg');
+      const thumb = getYouTubeThumbnail(url);
+      if (thumb) {
+        img.src = thumb;
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    // Base de dados inicial
+    let songs = JSON.parse(localStorage.getItem('ibn_songs')) || [
+      {
+        id: 1,
+        title: "Bondade de Deus",
+        artist: "Isaías Saad",
+        style: "Adoração / Exaltação",
+        year: 2021,
+        key: "G",
+        bpm: 70,
+        youtube: "https://www.youtube.com/watch?v=0k1A3f6qGqY"
+      },
+      {
+        id: 2,
+        title: "A Bênção",
+        artist: "Gabriel Guedes",
+        style: "Rendição / Devoção",
+        year: 2020,
+        key: "B",
+        bpm: 72,
+        youtube: "https://www.youtube.com/watch?v=f44H-w1q8vA"
+      },
+      {
+        id: 3,
+        title: "Leão",
+        artist: "Gabriela Rocha",
+        style: "Celebração / Júbilo",
+        year: 2022,
+        key: "A",
+        bpm: 130,
+        youtube: "https://www.youtube.com/watch?v=9XgN8B6n2c0"
+      }
+    ];
+
+    let plays = JSON.parse(localStorage.getItem('ibn_plays')) || [
+      { id: 1, songId: 1, date: "2026-08-09", vocal: "Juliana", key: "F", notes: "Tom baixado 1 tom para o vocal." },
+      { id: 2, songId: 1, date: "2026-08-02", vocal: "Paola", key: "G", notes: "Versão estendida no final." },
+      { id: 3, songId: 2, date: "2026-08-16", vocal: "Filipe", key: "A", notes: "Medley com 'Ele Me Ama'." },
+      { id: 4, songId: 3, date: "2026-08-16", vocal: "Juliana", key: "A", notes: "Arranjo com guitarras dobradas." }
+    ];
+
+    function saveToStorage() {
+      localStorage.setItem('ibn_songs', JSON.stringify(songs));
+      localStorage.setItem('ibn_plays', JSON.stringify(plays));
+    }
+
+    // Controle de Abas
+    function switchTab(tab) {
+      currentTab = tab;
+      const tabs = ['songs', 'historyDate', 'historyVocal', 'historyStyle', 'historyKey'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
+        const sec = document.getElementById(`${t}Section`);
+        if (btn && sec) {
+          if (t === tab) {
+            btn.className = "py-3 text-xs sm:text-sm font-semibold border-b-2 border-black text-black flex items-center gap-1.5 whitespace-nowrap";
+            sec.classList.remove('hidden');
+          } else {
+            btn.className = "py-3 text-xs sm:text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-900 flex items-center gap-1.5 whitespace-nowrap";
+            sec.classList.add('hidden');
+          }
+        }
+      });
+
+      if (tab === 'songs') applyFilters();
+      else if (tab === 'historyDate') renderHistoryDate();
+      else if (tab === 'historyVocal') renderHistoryVocal();
+      else if (tab === 'historyStyle') renderHistoryStyle();
+      else if (tab === 'historyKey') renderHistoryKey();
+    }
+
+    // Alternar Modo Administrador
+    function toggleAuth() {
+      if (!isAdmin) {
+        const pass = prompt("Digite a senha de Administrador (Padrão: admin123):");
+        if (pass === "admin123") {
+          isAdmin = true;
+        } else {
+          alert("Senha incorreta.");
+          return;
+        }
+      } else {
+        isAdmin = false;
+        selectedSongIds.clear();
+      }
+      updateAuthUI();
+    }
+
+    function updateAuthUI() {
+      document.getElementById('adminBadge').classList.toggle('hidden', !isAdmin);
+      document.getElementById('newSongBtn').classList.toggle('hidden', !isAdmin);
+      document.getElementById('authBtnText').innerText = isAdmin ? 'Sair' : 'Acesso Administrador';
+      document.getElementById('bulkSelectHeader').classList.toggle('hidden', !isAdmin);
+      updateBulkToolbar();
+      switchTab(currentTab);
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      document.getElementById('viewGridBtn').className = mode === 'grid' 
+        ? "px-2.5 py-1 text-xs rounded-md bg-white text-black shadow-xs font-semibold" 
+        : "px-2.5 py-1 text-xs rounded-md text-gray-500 hover:text-black";
+      document.getElementById('viewListBtn').className = mode === 'list' 
+        ? "px-2.5 py-1 text-xs rounded-md bg-white text-black shadow-xs font-semibold" 
+        : "px-2.5 py-1 text-xs rounded-md text-gray-500 hover:text-black";
+      renderSongsView();
+    }
+
+    function changePageSize() {
+      const val = document.getElementById('pageSizeSelect').value;
+      pageSize = val === 'all' ? 'all' : parseInt(val);
+      currentPage = 1;
+      renderSongsView();
+    }
+
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('styleFilter').value = '';
+      document.getElementById('keyFilter').value = '';
+      document.getElementById('vocalFilter').value = '';
+      document.getElementById('sortFilter').value = 'playsDesc';
+      currentPage = 1;
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const styleFilter = document.getElementById('styleFilter').value;
+      const keyFilter = document.getElementById('keyFilter').value;
+      const vocalFilter = document.getElementById('vocalFilter').value;
+      const sort = document.getElementById('sortFilter').value;
+
+      filteredSongsCache = songs.filter(s => {
+        const matchesSearch = s.title.toLowerCase().includes(search) || s.artist.toLowerCase().includes(search);
+        if (!matchesSearch) return false;
+        if (styleFilter && s.style !== styleFilter) return false;
+        if (keyFilter && s.key !== keyFilter) return false;
+        if (vocalFilter) {
+          const songPlays = plays.filter(p => p.songId === s.id);
+          const hasVocal = songPlays.some(p => p.vocal.toLowerCase().includes(vocalFilter.toLowerCase()));
+          if (!hasVocal) return false;
+        }
+        return true;
+      });
+
+      if (sort === 'alpha') {
+        filteredSongsCache.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sort === 'bpm') {
+        filteredSongsCache.sort((a, b) => (a.bpm || 0) - (b.bpm || 0));
+      } else {
+        filteredSongsCache.sort((a, b) => {
+          const countA = plays.filter(p => p.songId === a.id).length;
+          const countB = plays.filter(p => p.songId === b.id).length;
+          return countB - countA;
+        });
+      }
+
+      currentPage = 1;
+      renderSongsView();
+    }
+
+    function renderSongsView() {
+      const container = document.getElementById('songsContainer');
+      container.innerHTML = '';
+
+      if (filteredSongsCache.length === 0) {
+        container.innerHTML = `<div class="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-400 text-sm">Nenhuma música encontrada com os filtros selecionados.</div>`;
+        document.getElementById('paginationInfo').innerText = "Mostrando 0 de 0 músicas";
+        document.getElementById('paginationButtons').innerHTML = '';
+        return;
+      }
+
+      const totalItems = filteredSongsCache.length;
+      let displaySongs = filteredSongsCache;
+      let totalPages = 1;
+
+      if (pageSize !== 'all') {
+        totalPages = Math.ceil(totalItems / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        const startIndex = (currentPage - 1) * pageSize;
+        displaySongs = filteredSongsCache.slice(startIndex, startIndex + pageSize);
+        document.getElementById('paginationInfo').innerText = `Mostrando ${startIndex + 1}-${Math.min(startIndex + pageSize, totalItems)} de ${totalItems} músicas`;
+      } else {
+        document.getElementById('paginationInfo').innerText = `Mostrando todas as ${totalItems} músicas`;
+      }
+
+      renderPaginationControls(totalPages);
+
+      if (viewMode === 'grid') {
+        const grid = document.createElement('div');
+        grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5";
+
+        displaySongs.forEach(song => {
+          const songPlays = plays.filter(p => p.songId === song.id);
+          const playCount = songPlays.length;
+          const isSelected = selectedSongIds.has(song.id);
+          const thumbUrl = getYouTubeThumbnail(song.youtube);
+
+          let styleBadge = 'bg-gray-100 text-gray-800';
+          if (song.style === 'Adoração / Exaltação') styleBadge = 'bg-purple-50 text-purple-700 border border-purple-200';
+          else if (song.style === 'Celebração / Júbilo') styleBadge = 'bg-amber-50 text-amber-700 border border-amber-200';
+          else if (song.style === 'Rendição / Devoção') styleBadge = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+
+          const card = document.createElement('div');
+          card.className = `bg-white border ${isSelected ? 'border-black ring-2 ring-black/10' : 'border-gray-200'} rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between`;
+          card.innerHTML = `
+            <div>
+              <!-- Miniatura do YouTube no Card -->
+              <div class="relative w-full aspect-video bg-gray-900 overflow-hidden group">
+                ${thumbUrl ? `
+                  <img src="${thumbUrl}" alt="${song.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" loading="lazy">
+                ` : `
+                  <div class="w-full h-full flex items-center justify-center text-gray-600 bg-gray-950">
+                    <i class="fa-solid fa-music text-3xl"></i>
+                  </div>
+                `}
+                
+                <a href="${song.youtube}" target="_blank" class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition flex items-center justify-center">
+                  <span class="w-10 h-10 rounded-full bg-red-600/90 group-hover:bg-red-600 text-white flex items-center justify-center shadow-lg transition">
+                    <i class="fa-brands fa-youtube text-lg ml-0.5"></i>
+                  </span>
+                </a>
+
+                <!-- Checkbox Admin Sobreposto -->
+                ${isAdmin ? `
+                  <div class="absolute top-2.5 left-2.5 z-10 bg-white/90 p-1.5 rounded-lg shadow-sm">
+                    <input type="checkbox" onchange="toggleSongSelect(${song.id}, this.checked)" ${isSelected ? 'checked' : ''} 
+                           class="w-4 h-4 rounded text-black focus:ring-0 cursor-pointer block">
+                  </div>
+                ` : ''}
+
+                <!-- Tom Badge Sobreposto -->
+                <div class="absolute top-2.5 right-2.5 z-10">
+                  <span class="text-xs font-bold px-2 py-1 rounded-lg bg-black/80 backdrop-blur-sm text-white shadow-sm">
+                    Tom: ${song.key}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Informações da Música -->
+              <div class="p-4">
+                <div class="mb-2">
+                  <h4 class="font-bold text-gray-900 text-base leading-tight">${song.title}</h4>
+                  <p class="text-xs text-gray-500 font-medium">${song.artist} ${song.year ? '• ' + song.year : ''}</p>
+                </div>
+
+                <div class="mb-3">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded ${styleBadge}">
+                    <i class="fa-solid fa-tag mr-1 text-[10px]"></i>${song.style || 'Não categorizado'}
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] bg-gray-100 text-gray-700 font-medium px-2 py-0.5 rounded">
+                    <i class="fa-solid fa-gauge-high mr-1 text-gray-400"></i>${song.bpm ? song.bpm + ' BPM' : 'Sem BPM'}
+                  </span>
+                  <span class="text-[11px] bg-blue-50 text-blue-700 font-semibold px-2 py-0.5 rounded border border-blue-100">
+                    <i class="fa-solid fa-church mr-1"></i>Tocada ${playCount}x
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rodapé do Card -->
+            <div class="px-4 pb-4 pt-2 border-t border-gray-100 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-xs">
+                <a href="${song.youtube}" target="_blank" class="text-red-600 hover:text-red-700 font-semibold flex items-center gap-1">
+                  Assistir Vídeo
+                </a>
+                <button onclick="openHistoryModal(${song.id})" class="text-gray-600 hover:text-black font-medium underline">
+                  Histórico (${playCount})
+                </button>
+              </div>
+
+              ${isAdmin ? `
+                <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-dashed border-gray-200">
+                  <button onclick="openPlayModal(${song.id})" class="flex-1 bg-black hover:bg-gray-800 text-white text-xs font-semibold py-1.5 px-2 rounded-lg transition">
+                    <i class="fa-solid fa-plus mr-1"></i> Registrar Culto
+                  </button>
+                  <button onclick="openEditSongModal(${song.id})" class="text-gray-600 hover:text-black bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg text-xs font-medium" title="Editar dados da música">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button onclick="deleteSong(${song.id})" class="text-gray-400 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-2.5 py-1.5 rounded-lg text-xs" title="Excluir música">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+        container.appendChild(grid);
+
+      } else {
+        // Exibição em Tabela / Lista com Miniatura Compacta
+        const tableWrapper = document.createElement('div');
+        tableWrapper.className = "bg-white border border-gray-200 rounded-xl overflow-x-auto shadow-sm";
+        
+        let rowsHtml = displaySongs.map(song => {
+          const songPlays = plays.filter(p => p.songId === song.id);
+          const playCount = songPlays.length;
+          const isSelected = selectedSongIds.has(song.id);
+          const thumbUrl = getYouTubeThumbnail(song.youtube);
+
+          return `
+            <tr class="hover:bg-gray-50 border-b border-gray-100 last:border-0 ${isSelected ? 'bg-gray-50/80' : ''}">
+              ${isAdmin ? `
+                <td class="py-3 px-3 w-10 text-center">
+                  <input type="checkbox" onchange="toggleSongSelect(${song.id}, this.checked)" ${isSelected ? 'checked' : ''} 
+                         class="w-4 h-4 rounded text-black focus:ring-0 cursor-pointer">
+                </td>
+              ` : ''}
+              <td class="py-2.5 px-3">
+                <div class="flex items-center gap-3">
+                  <a href="${song.youtube}" target="_blank" class="w-12 h-8 rounded bg-gray-900 shrink-0 overflow-hidden relative block group">
+                    ${thumbUrl ? `<img src="${thumbUrl}" class="w-full h-full object-cover">` : ''}
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 flex items-center justify-center">
+                      <i class="fa-brands fa-youtube text-red-500 text-xs"></i>
+                    </div>
+                  </a>
+                  <div>
+                    <div class="font-bold text-gray-900">${song.title}</div>
+                    <div class="text-xs text-gray-500">${song.artist} ${song.year ? '• ' + song.year : ''}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3 px-3 text-xs text-gray-700 font-medium whitespace-nowrap">${song.style || '-'}</td>
+              <td class="py-3 px-3 text-xs text-center"><span class="bg-gray-900 text-white font-bold px-2 py-0.5 rounded">${song.key}</span></td>
+              <td class="py-3 px-3 text-xs text-center text-gray-600">${song.bpm ? song.bpm + ' BPM' : '-'}</td>
+              <td class="py-3 px-3 text-xs text-center font-bold text-blue-700">${playCount}x</td>
+              <td class="py-3 px-3 text-xs text-right whitespace-nowrap">
+                <button onclick="openHistoryModal(${song.id})" class="text-gray-600 hover:text-black font-medium underline mr-2">Histórico</button>
+                ${isAdmin ? `
+                  <button onclick="openPlayModal(${song.id})" class="bg-black text-white px-2 py-1 rounded text-xs mr-1"><i class="fa-solid fa-plus"></i></button>
+                  <button onclick="openEditSongModal(${song.id})" class="bg-gray-100 text-gray-700 hover:text-black px-2 py-1 rounded text-xs mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                  <button onclick="deleteSong(${song.id})" class="bg-gray-100 text-gray-400 hover:text-red-600 px-2 py-1 rounded text-xs"><i class="fa-solid fa-trash"></i></button>
+                ` : ''}
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        tableWrapper.innerHTML = `
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-gray-100/75 text-gray-600 font-semibold uppercase tracking-wider border-b border-gray-200">
+                ${isAdmin ? '<th class="py-3 px-3 text-center w-10"></th>' : ''}
+                <th class="py-3 px-3">Música / Artista</th>
+                <th class="py-3 px-3">Estilo</th>
+                <th class="py-3 px-3 text-center">Tom</th>
+                <th class="py-3 px-3 text-center">BPM</th>
+                <th class="py-3 px-3 text-center">Cultos</th>
+                <th class="py-3 px-3 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">${rowsHtml}</tbody>
+          </table>
+        `;
+        container.appendChild(tableWrapper);
+      }
+
+      updateSelectAllCheckboxState(displaySongs);
+    }
+
+    function renderPaginationControls(totalPages) {
+      const btnContainer = document.getElementById('paginationButtons');
+      btnContainer.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      const prevBtn = document.createElement('button');
+      prevBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.className = `px-2.5 py-1 rounded border border-gray-300 ${currentPage === 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`;
+      prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderSongsView(); } };
+      btnContainer.appendChild(prevBtn);
+
+      for (let i = 1; i <= totalPages; i++) {
+        const pBtn = document.createElement('button');
+        pBtn.innerText = i;
+        pBtn.className = `px-2.5 py-1 rounded border ${i === currentPage ? 'bg-black text-white border-black font-bold' : 'border-gray-300 hover:bg-gray-100'}`;
+        pBtn.onclick = () => { currentPage = i; renderSongsView(); };
+        btnContainer.appendChild(pBtn);
+      }
+
+      const nextBtn = document.createElement('button');
+      nextBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.className = `px-2.5 py-1 rounded border border-gray-300 ${currentPage === totalPages ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`;
+      nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderSongsView(); } };
+      btnContainer.appendChild(nextBtn);
+    }
+
+    function toggleSongSelect(songId, checked) {
+      if (checked) selectedSongIds.add(songId);
+      else selectedSongIds.delete(songId);
+      updateBulkToolbar();
+    }
+
+    function toggleSelectAll(checked) {
+      const totalItems = filteredSongsCache.length;
+      let displaySongs = filteredSongsCache;
+      if (pageSize !== 'all') {
+        const startIndex = (currentPage - 1) * pageSize;
+        displaySongs = filteredSongsCache.slice(startIndex, startIndex + pageSize);
+      }
+
+      displaySongs.forEach(s => {
+        if (checked) selectedSongIds.add(s.id);
+        else selectedSongIds.delete(s.id);
+      });
+      renderSongsView();
+      updateBulkToolbar();
+    }
+
+    function updateSelectAllCheckboxState(displaySongs) {
+      const selectAllCb = document.getElementById('selectAllCheckbox');
+      if (!selectAllCb || displaySongs.length === 0) return;
+      const allSelected = displaySongs.every(s => selectedSongIds.has(s.id));
+      selectAllCb.checked = allSelected;
+    }
+
+    function updateBulkToolbar() {
+      const toolbar = document.getElementById('bulkActionsToolbar');
+      const count = selectedSongIds.size;
+      document.getElementById('selectedCountBadge').innerText = `${count} selecionadas`;
+      document.getElementById('bulkSelectedText').innerText = count;
+
+      if (isAdmin && count > 0) {
+        toolbar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+      } else {
+        toolbar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+      }
+    }
+
+    function clearSelection() {
+      selectedSongIds.clear();
+      renderSongsView();
+      updateBulkToolbar();
+    }
+
+    function deleteSelectedSongs() {
+      const count = selectedSongIds.size;
+      if (confirm(`Deseja realmente excluir as ${count} músicas selecionadas do repertório?`)) {
+        songs = songs.filter(s => !selectedSongIds.has(s.id));
+        plays = plays.filter(p => !selectedSongIds.has(p.songId));
+        selectedSongIds.clear();
+        saveToStorage();
+        applyFilters();
+      }
+    }
+
+    function openBulkEditModal() {
+      document.getElementById('bulkEditForm').reset();
+      document.getElementById('bulkEditSub').innerText = `Aplicar alterações simultâneas para ${selectedSongIds.size} músicas selecionadas.`;
+      document.getElementById('bulkEditModal').classList.remove('hidden');
+    }
+
+    function applyBulkEdit(e) {
+      e.preventDefault();
+      const newStyle = document.getElementById('bulkSongStyle').value;
+      const newKey = document.getElementById('bulkSongKey').value;
+
+      if (!newStyle && !newKey) {
+        alert("Por favor, selecione ao menos um campo para alterar.");
+        return;
+      }
+
+      songs = songs.map(song => {
+        if (selectedSongIds.has(song.id)) {
+          return {
+            ...song,
+            style: newStyle || song.style,
+            key: newKey || song.key
+          };
+        }
+        return song;
+      });
+
+      saveToStorage();
+      closeModal('bulkEditModal');
+      clearSelection();
+      applyFilters();
+    }
+
+    // Histórico por Data
+    function renderHistoryDate() {
+      const container = document.getElementById('historyDateTimeline');
+      const monthFilter = document.getElementById('dateFilterMonth').value;
+      container.innerHTML = '';
+
+      let filteredPlays = [...plays];
+      if (monthFilter) {
+        filteredPlays = filteredPlays.filter(p => p.date && p.date.startsWith(monthFilter));
+      }
+
+      if (filteredPlays.length === 0) {
+        container.innerHTML = `<div class="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-400 text-sm">Nenhum registro de culto encontrado.</div>`;
+        return;
+      }
+
+      const groups = {};
+      filteredPlays.forEach(p => {
+        if (!groups[p.date]) groups[p.date] = [];
+        groups[p.date].push(p);
+      });
+
+      const sortedDates = Object.keys(groups).sort((a, b) => new Date(b) - new Date(a));
+
+      sortedDates.forEach(date => {
+        const datePlays = groups[date];
+        const formattedDate = new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', {
+          weekday: 'long',
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
+
+        const section = document.createElement('div');
+        section.className = "bg-white border border-gray-200 rounded-xl p-5 shadow-sm";
+
+        let itemsHtml = datePlays.map(p => {
+          const song = songs.find(s => s.id === p.songId) || { title: 'Música não cadastrada', artist: '', youtube: '#', style: '' };
+          return `
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 py-3 border-b border-gray-100 last:border-0">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="font-bold text-gray-900 text-sm">${song.title}</h4>
+                  <span class="text-xs text-gray-500">(${song.artist})</span>
+                  <span class="text-[10px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-medium">${song.style}</span>
+                  <a href="${song.youtube}" target="_blank" class="text-red-600 hover:text-red-700 text-xs">
+                    <i class="fa-brands fa-youtube"></i>
+                  </a>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">
+                  <span class="font-semibold text-gray-700">Arranjo / Notas:</span> ${p.notes || 'Estrutura padrão'}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-3 shrink-0">
+                <span class="text-xs bg-gray-100 text-gray-800 font-semibold px-2.5 py-1 rounded-full">
+                  <i class="fa-solid fa-microphone mr-1 text-gray-400"></i>${p.vocal}
+                </span>
+                <span class="text-xs bg-black text-white font-bold px-2.5 py-1 rounded-full">
+                  Tom: ${p.key}
+                </span>
+                ${isAdmin ? `
+                  <button onclick="deletePlay(${p.id})" class="text-gray-400 hover:text-red-600 text-xs ml-1" title="Excluir este registro">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        section.innerHTML = `
+          <div class="flex items-center justify-between border-b pb-3 mb-2">
+            <h3 class="font-bold text-gray-900 text-sm capitalize flex items-center gap-2">
+              <i class="fa-solid fa-calendar-check text-black"></i> ${formattedDate}
+            </h3>
+            <span class="text-xs bg-gray-100 text-gray-700 font-semibold px-2.5 py-0.5 rounded">${datePlays.length} músicas</span>
+          </div>
+          <div class="divide-y divide-gray-50">${itemsHtml}</div>
+        `;
+
+        container.appendChild(section);
+      });
+    }
+
+    // Histórico por Ministro
+    function renderHistoryVocal() {
+      const container = document.getElementById('historyVocalGrid');
+      container.innerHTML = '';
+
+      const vocals = {};
+      plays.forEach(p => {
+        const v = p.vocal.trim();
+        if (!vocals[v]) vocals[v] = [];
+        vocals[v].push(p);
+      });
+
+      const vocalNames = Object.keys(vocals).sort();
+
+      if (vocalNames.length === 0) {
+        container.innerHTML = `<div class="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-400 text-sm">Nenhum registro de ministro cadastrado.</div>`;
+        return;
+      }
+
+      vocalNames.forEach(name => {
+        const vPlays = vocals[name];
+        const card = document.createElement('div');
+        card.className = "bg-white border border-gray-200 rounded-xl p-5 shadow-sm";
+
+        let playsHtml = vPlays.map(p => {
+          const s = songs.find(x => x.id === p.songId) || { title: 'Música' };
+          return `
+            <div class="flex items-center justify-between py-2 text-xs border-b border-gray-50 last:border-0">
+              <span class="font-medium text-gray-900">${s.title}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] text-gray-500">${p.date}</span>
+                <span class="bg-gray-900 text-white font-bold px-2 py-0.5 rounded text-[10px]">Tom: ${p.key}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b pb-2 mb-3">
+            <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-microphone text-gray-600"></i> ${name}
+            </h3>
+            <span class="text-xs bg-gray-100 text-gray-700 font-semibold px-2 py-0.5 rounded">${vPlays.length} execuções</span>
+          </div>
+          <div class="divide-y divide-gray-50">${playsHtml}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Histórico por Estilo Musical
+    function renderHistoryStyle() {
+      const container = document.getElementById('historyStyleGrid');
+      container.innerHTML = '';
+
+      const styles = ["Adoração / Exaltação", "Celebração / Júbilo", "Rendição / Devoção"];
+
+      styles.forEach(st => {
+        const styleSongs = songs.filter(s => s.style === st);
+        const card = document.createElement('div');
+        card.className = "bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col justify-between";
+
+        let songsHtml = styleSongs.map(s => {
+          const count = plays.filter(p => p.songId === s.id).length;
+          return `
+            <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0 text-xs">
+              <div>
+                <p class="font-semibold text-gray-900 leading-tight">${s.title}</p>
+                <p class="text-[11px] text-gray-500">${s.artist}</p>
+              </div>
+              <div class="text-right shrink-0 ml-2">
+                <span class="bg-gray-100 text-gray-800 font-bold px-1.5 py-0.5 rounded text-[10px]">${s.key}</span>
+                <p class="text-[10px] text-gray-400 mt-0.5">${count}x no culto</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between border-b pb-2 mb-3">
+              <h3 class="font-bold text-gray-900 text-sm">${st}</h3>
+              <span class="text-xs bg-gray-100 text-gray-700 font-bold px-2 py-0.5 rounded">${styleSongs.length}</span>
+            </div>
+            <div class="divide-y divide-gray-50">${songsHtml || '<p class="text-xs text-gray-400 py-3">Nenhuma música cadastrada.</p>'}</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Histórico por Tom
+    function renderHistoryKey() {
+      const container = document.getElementById('historyKeyGrid');
+      container.innerHTML = '';
+
+      const keyMap = {};
+      plays.forEach(p => {
+        if (!keyMap[p.key]) keyMap[p.key] = [];
+        keyMap[p.key].push(p);
+      });
+
+      const keys = Object.keys(keyMap).sort();
+
+      if (keys.length === 0) {
+        container.innerHTML = `<div class="col-span-full bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-400 text-sm">Nenhum tom registrado em cultos até o momento.</div>`;
+        return;
+      }
+
+      keys.forEach(k => {
+        const kPlays = keyMap[k];
+        const card = document.createElement('div');
+        card.className = "bg-white border border-gray-200 rounded-xl p-3.5 shadow-sm";
+
+        let playsList = kPlays.map(p => {
+          const s = songs.find(x => x.id === p.songId) || { title: 'Música' };
+          return `
+            <div class="py-1 text-xs text-gray-700 flex justify-between">
+              <span class="font-medium truncate pr-1">${s.title}</span>
+              <span class="text-[10px] text-gray-400 shrink-0">${p.vocal}</span>
+            </div>
+          `;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between border-b pb-1.5 mb-2">
+            <span class="text-sm font-bold text-gray-900">Tom: ${k}</span>
+            <span class="text-xs bg-gray-900 text-white font-bold px-2 py-0.2 rounded">${kPlays.length}x</span>
+          </div>
+          <div class="divide-y divide-gray-50">${playsList}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Extração Automática via YouTube
+    async function fetchYouTubeData() {
+      const url = document.getElementById('ytUrl').value;
+      const helper = document.getElementById('ytHelper');
+      if (!url) return alert('Por favor, insira a URL do YouTube primeiro.');
+
+      updateModalThumbPreview(url);
+      helper.innerText = "Consultando dados do vídeo...";
+      try {
+        const response = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`);
+        const data = await response.json();
+
+        if (data.title) {
+          let title = data.title;
+          let author = data.author_name || '';
+
+          if (title.includes('-')) {
+            const parts = title.split('-');
+            author = parts[0].trim();
+            title = parts.slice(1).join('-').trim();
+          }
+
+          document.getElementById('songTitle').value = title;
+          document.getElementById('songArtist').value = author;
+          document.getElementById('songYear').value = new Date().getFullYear();
+          helper.innerText = "Título, Artista e Miniatura carregados!";
+        } else {
+          helper.innerText = "Vídeo localizado. Preencha os campos abaixo.";
+        }
+      } catch (err) {
+        helper.innerText = "Não foi possível carregar automaticamente. Insira os dados manualmente.";
+      }
+    }
+
+    // Tap Tempo
+    let tapTimes = [];
+    function tapTempo() {
+      const now = performance.now();
+      tapTimes.push(now);
+      if (tapTimes.length > 5) tapTimes.shift();
+
+      if (tapTimes.length > 1) {
+        const intervals = [];
+        for (let i = 1; i < tapTimes.length; i++) {
+          intervals.push(tapTimes[i] - tapTimes[i - 1]);
+        }
+        const avg = intervals.reduce((a, b) => a + b) / intervals.length;
+        const bpm = Math.round(60000 / avg);
+        if (bpm > 40 && bpm < 240) {
+          document.getElementById('songBpm').value = bpm;
+        }
+      }
+    }
+
+    // Salvar ou Editar Música
+    function saveSong(e) {
+      e.preventDefault();
+      const songId = document.getElementById('songId').value;
+
+      const songData = {
+        title: document.getElementById('songTitle').value,
+        artist: document.getElementById('songArtist').value,
+        style: document.getElementById('songStyle').value,
+        year: parseInt(document.getElementById('songYear').value) || null,
+        key: document.getElementById('songKey').value,
+        bpm: parseInt(document.getElementById('songBpm').value) || null,
+        youtube: document.getElementById('ytUrl').value
+      };
+
+      if (songId) {
+        const index = songs.findIndex(s => s.id === parseInt(songId));
+        if (index !== -1) {
+          songs[index] = { ...songs[index], ...songData };
+        }
+      } else {
+        songs.push({ id: Date.now(), ...songData });
+      }
+
+      saveToStorage();
+      closeModal('songModal');
+      applyFilters();
+    }
+
+    // Salvar Registro de Culto
+    function savePlay(e) {
+      e.preventDefault();
+      const songId = parseInt(document.getElementById('playSongId').value);
+      const newPlay = {
+        id: Date.now(),
+        songId: songId,
+        date: document.getElementById('playDate').value,
+        vocal: document.getElementById('playVocal').value,
+        key: document.getElementById('playKey').value,
+        notes: document.getElementById('playNotes').value || 'Estrutura padrão'
+      };
+
+      plays.push(newPlay);
+      saveToStorage();
+      closeModal('playModal');
+      switchTab(currentTab);
+    }
+
+    function deleteSong(id) {
+      if (confirm("Deseja realmente remover esta música do repertório?")) {
+        songs = songs.filter(s => s.id !== id);
+        plays = plays.filter(p => p.songId !== id);
+        selectedSongIds.delete(id);
+        saveToStorage();
+        applyFilters();
+      }
+    }
+
+    function deletePlay(id) {
+      if (confirm("Deseja remover este registro de culto?")) {
+        plays = plays.filter(p => p.id !== id);
+        saveToStorage();
+        switchTab(currentTab);
+      }
+    }
+
+    // Modais
+    function openSongModal() {
+      document.getElementById('songForm').reset();
+      document.getElementById('songId').value = '';
+      document.getElementById('modalThumbContainer').classList.add('hidden');
+      document.getElementById('songModalTitle').innerText = "Cadastrar Nova Música";
+      document.getElementById('ytHelper').innerText = "Cole a URL e clique em 'Puxar' para autocompletar.";
+      tapTimes = [];
+      document.getElementById('songModal').classList.remove('hidden');
+    }
+
+    function openEditSongModal(songId) {
+      const song = songs.find(s => s.id === songId);
+      if (!song) return;
+
+      document.getElementById('songId').value = song.id;
+      document.getElementById('songTitle').value = song.title;
+      document.getElementById('songArtist').value = song.artist;
+      document.getElementById('songStyle').value = song.style || '';
+      document.getElementById('songYear').value = song.year || '';
+      document.getElementById('songKey').value = song.key;
+      document.getElementById('songBpm').value = song.bpm || '';
+      document.getElementById('ytUrl').value = song.youtube;
+
+      updateModalThumbPreview(song.youtube);
+
+      document.getElementById('songModalTitle').innerText = "Editar Música";
+      document.getElementById('ytHelper').innerText = "Altere os campos necessários e clique em Salvar.";
+      document.getElementById('songModal').classList.remove('hidden');
+    }
+
+    function openPlayModal(songId) {
+      const song = songs.find(s => s.id === songId);
+      document.getElementById('playSongId').value = songId;
+      document.getElementById('playSongTitle').innerText = `${song.title} — ${song.artist}`;
+      document.getElementById('playDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('playKey').value = song.key;
+      document.getElementById('playNotes').value = '';
+      document.getElementById('playModal').classList.remove('hidden');
+    }
+
+    function openHistoryModal(songId) {
+      const song = songs.find(s => s.id === songId);
+      const songPlays = plays.filter(p => p.songId === songId);
+
+      document.getElementById('historyTitle').innerText = song.title;
+      document.getElementById('historySubtitle').innerText = `${song.artist} • Estilo: ${song.style || 'N/D'} • Tom Original: ${song.key}`;
+
+      const tbody = document.getElementById('historyTableBody');
+      tbody.innerHTML = '';
+
+      if (songPlays.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-400">Nenhum registro de culto cadastrado ainda.</td></tr>`;
+      } else {
+        songPlays.forEach(p => {
+          const row = document.createElement('tr');
+          row.className = "hover:bg-gray-50";
+          row.innerHTML = `
+            <td class="py-2 px-3 font-medium text-gray-800">${p.date}</td>
+            <td class="py-2 px-3 text-gray-700">${p.vocal}</td>
+            <td class="py-2 px-3"><span class="bg-gray-900 text-white font-bold px-2 py-0.5 rounded text-[11px]">${p.key}</span></td>
+            <td class="py-2 px-3 text-gray-600">${p.notes}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      document.getElementById('historyModal').classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // Inicialização
+    applyFilters();
+  </script>
+</body>
+</html>
